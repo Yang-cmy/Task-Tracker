@@ -1,5 +1,7 @@
 import json
+import os
 
+from datetime import datetime
 
 class TaskProperties:
     def __init__(self, id, description, status, created_at, updated_at):
@@ -35,44 +37,55 @@ def save_tasks(tasks):
 
 
 def load_tasks():
-    with open("Data.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
+    if not os.path.exists("Data.json"):
+        return []
 
-        tasks = []
+    try:
+        with open("Data.json", "r", encoding="utf-8") as file:
+            data = json.load(file)
 
-        for item in data:
-            task = TaskProperties.from_dict(item)
-            tasks.append(task)
+    except json.JSONDecodeError:
+        return []
+    
+    tasks = []
+
+    for item in data:
+        task = TaskProperties.from_dict(item)
+        tasks.append(task)
 
     return tasks
 
 
-task1 = TaskProperties(
-    1,
-    "Study Python",
-    "todo",
-    "2026-09-25",
-    "2026-09-25"
-)
+def get_current_time():
+    return datetime.now().isoformat(timespec = "seconds")
 
-task2 = TaskProperties(
-    2,
-    "Go shopping",
-    "todo",
-    "2026-09-25",
-    "2026-09-25"
-)
+def add_task(description):
+    tasks = load_tasks()
 
+    if len(tasks) == 0:
+        new_id = 1
+    else:
+        new_id = tasks[-1].id + 1
 
-tasks = [
-    task1.to_dict(),
-    task2.to_dict()
-]
+    now = get_current_time()
 
-save_tasks(tasks)
+    new_task = TaskProperties(
+        new_id,
+        description,
+        "todo",
+        now,
+        now
+    )
 
-loaded_tasks = load_tasks()
+    tasks.append(new_task)
 
-print(type(loaded_tasks))
-print(type(loaded_tasks[0]))
-print(loaded_tasks[0].description)
+    tasks_dict = []
+
+    for task in tasks:
+        tasks_dict.append(task.to_dict())
+
+    save_tasks(tasks_dict)
+
+    print(f"Task added successfully (ID: {new_id})")
+
+add_task("Finish Task Tracker")

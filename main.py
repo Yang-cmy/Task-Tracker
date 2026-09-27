@@ -88,4 +88,54 @@ def add_task(description):
 
     print(f"Task added successfully (ID: {new_id})")
 
-add_task("Finish Task Tracker")
+def list_tasks(status = None):
+    tasks = load_tasks()
+
+    if len(tasks) == 0:
+        print("No tasks found")
+        return
+
+    for task in tasks:
+        if status is None or task.status == status:
+            print(f"ID: {task.id} | {task.description} | Status: {task.status}")
+
+def update_task(task_id,new_description):
+    tasks = load_tasks()
+
+    for task in tasks:
+        if task.id == task_id:
+            task.description = new_description
+            task.updated_at = get_current_time()
+
+            task_dict = []
+
+            for item in tasks:
+                task_dict.append(item.to_dict())
+
+            save_tasks(task_dict)
+
+            print(f"Task {task_id} updated succesfuly.")
+            return
+
+    print(f"Task with ID {task_id} not found.")
+
+def delete_task(task_id):
+    tasks = load_tasks()
+
+    for task in tasks:
+        if task.id == task_id:
+            tasks.remove(task)
+
+            task_dict = []
+
+            for item in tasks:
+                task_dict.append(item.to_dict())
+
+            save_tasks(task_dict)
+
+            print(f"Tasks {task_id} deleated succesfully.")
+            return
+
+    print(f"Task with ID {task_id} not found.")
+
+list_tasks()
